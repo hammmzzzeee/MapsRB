@@ -1,0 +1,8 @@
+version: "Apple Swift version 4.1.2 (swiftlang-902.0.54 clang-902.0.39.2)"
+options: "2cb9644e3cdf81e9bca79ea9fb7e40b6"
+build_time: [1557485082, 316027000]
+inputs:
+  "/Users/hamza/Desktop/MapsRB/MapsRB/View Controllers/LoginViewController.swift": [1557484544, 0]
+  "/Users/hamza/Desktop/MapsRB/MapsRB/ViewController.swift": [1557484128, 0]
+  "/Users/hamza/Desktop/MapsRB/MapsRB/View Controllers/MapViewController.swift": [1557485046, 0]
+  "/Users/hamza/Desktop/MapsRB/MapsRB/AppDelegate.swift": [1557484455, 0]

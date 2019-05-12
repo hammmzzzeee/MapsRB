@@ -8,15 +8,25 @@
 
 import UIKit
 import CoreData
+import GoogleMaps
+import GoogleSignIn
+
+
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate ,GIDSignInDelegate{
+   
 
     var window: UIWindow?
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        GMSServices.provideAPIKey(apiKey)
+       
+        // Initialize sign-in
+        GIDSignIn.sharedInstance().clientID = clientId
+        GIDSignIn.sharedInstance().delegate = self
         return true
     }
 
@@ -73,6 +83,58 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return container
     }()
 
+    
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance().handle(url as URL?,
+                                                 sourceApplication: options[UIApplicationOpenURLOptionsKey.sourceApplication] as? String,
+                                                 annotation: options[UIApplicationOpenURLOptionsKey.annotation])
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!,
+              withError error: Error!) {
+        if let error = error {
+            print("\(error.localizedDescription)")
+        } else {
+            
+            // Perform any operations on signed in user here.
+            let fullName = user.profile.name
+            let email = user.profile.email
+            
+            let emailString = read(key: "email")
+            if emailString == email{
+                // email already there
+
+                
+            }
+            else{
+                //saving in User Defaults
+                write(key: "email", value: email!)
+                write(key: "post", value: "yes")
+
+                // saving in db
+                DBCommon.shared.save(name: fullName!, email: email!)
+            }
+            
+            // Access the storyboard and fetch an instance of the view controller
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let viewController: MapViewController = storyboard.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController;
+            
+            // Then push that view controller onto the navigation stack
+            let rootViewController = self.window!.rootViewController as! UINavigationController;
+            rootViewController.pushViewController(viewController, animated: false);
+
+            
+        }
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!,
+              withError error: Error!) {
+        // Perform any operations when the user disconnects from app here.
+        // ...
+    }
+
+    
     // MARK: - Core Data Saving support
 
     func saveContext () {
@@ -88,6 +150,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
+    
+    //User Defaults
+    func read(key:String)->String{
+        let preferences = UserDefaults.standard
+        let key = key
+        if preferences.object(forKey: key) == nil {
+            //  Doesn't exist
+            return "nil"
+        } else {
+            let value = preferences.string(forKey: key)
+            return value!
+        }
+    }
+    func write(key:String, value:String){
+        let preferences = UserDefaults.standard
+        
+        let value = value
+        let key = key
+        preferences.set(value, forKey: key)
+    }
+    
 
 }
 
